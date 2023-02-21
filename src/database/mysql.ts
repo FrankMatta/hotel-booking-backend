@@ -1,5 +1,8 @@
 import { Connection, createConnection, OkPacket } from "mysql";
 import { promisify } from "util";
+import { GuestDetails } from "../models/models";
+
+//dotenv config
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -44,31 +47,45 @@ export default class MySQL extends MySQLConnectionParams {
       password,
       database,
     });
-    this.connection.connect(function (error) {
+    this.connection.connect(function (error: Error) {
       if (error) {
-        console.error("Error connecting to MySQL: " + error.message);
-        return;
+        throw new Error(error.message);
       }
       console.log("Successfully connected to MySQL");
     });
   }
 
-  async insert<T>(table: string, data: object): Promise<boolean> {
-    const keys = Object.keys(data);
-    const values = Object.values(data);
-    const placeholders = values.map((v) => `'${v}'`).join(", ");
-    const query = `INSERT INTO ${table} (${keys.join(
-      ", "
-    )}) VALUES (${placeholders})`;
+  async addGuest<T>(guestDetails: GuestDetails): Promise<OkPacket | Error> {
+    const { firstName, lastName, city, country, email, passportDetails } =
+      guestDetails;
+    const { foreName, surName, passportNumber } = passportDetails;
+    const dateOfBirth: string = new Date(guestDetails.dateOfBirth)
+      .toISOString()
+      .replace("T", " ")
+      .slice(0, -5);
+    const dateOfIssue: string = new Date(
+      guestDetails.passportDetails.dateOfIssue
+    )
+      .toISOString()
+      .replace("T", " ")
+      .slice(0, -5);
+    const dateOfExpiry: string = new Date(
+      guestDetails.passportDetails.dateOfExpiry
+    )
+      .toISOString()
+      .replace("T", " ")
+      .slice(0, -5);
 
-    console.log("query:", query);
-
+    const query =
+      "INSERT INTO guest_details (`firstName`, `lastName`, `email`, `dateOfBirth`, `city`, `country`, `passportForename`, `passportSurname`, `passportNumber`, `passportDateOfIssue`, `passportDateOfExpiry`) " +
+      `VALUES ('${firstName}', '${lastName}', '${email}', '${dateOfBirth}', '${city}', '${country}', '${foreName}', '${surName}', '${passportNumber}', '${dateOfIssue}', '${dateOfExpiry}')`;
     try {
-      const inserted: Promise<OkPacket> = await this.promosifiedQuery(query);
-      console.log("inserteddd", (await inserted).insertId)
-      return !isNaN((await inserted).insertId);
+      const guest: Promise<OkPacket> = await this.promosifiedQuery(query);
+      return await guest;
     } catch (error: any) {
-      return error;
+      throw new Error(
+        "Something went wrong while inserting guest in the database"
+      );
     }
   }
 }
