@@ -1,11 +1,17 @@
 import express, { NextFunction, Request, Response } from "express";
+import cors from 'cors';
+import bodyParser from 'body-parser';
 import routes from "./routes/guests";
+
 const app = express();
 const port = process.env.PORT || 3000;
 
+const options = {
+  origin: 'http://localhost:4200'
+};
 
-// var bodyParser = require('body-parser')
-import bodyParser from 'body-parser';
+//CORS
+app.use(cors(options));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
