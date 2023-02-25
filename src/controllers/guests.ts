@@ -13,7 +13,7 @@ const saveGuestDetails = async (
   const guests = new Guests();
   const result: OkPacket | Error = await guests.create(body)
   if (!(result instanceof Error)) {
-    res.status(200).send({message: 'Guest added successfully!'});
+    res.status(200).send({message: 'Guest created successfully!'});
     sendGuestEmail(body);
   } else {
     res.status(500).send('Internal server error')

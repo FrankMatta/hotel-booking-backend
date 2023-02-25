@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import routes from "./routes/guests";
+import routes from "./routes/routes";
 
 const app = express();
 const port = process.env.PORT || 3000;

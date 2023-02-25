@@ -6,7 +6,7 @@ export default class Bookings extends MySQL {
   async create(
     bookingDetails: BookingDetails
   ): Promise<OkPacket | Error> {
-    const { description, price, bookingPer, adultsCount, childrenCount } =
+    const { guest_id, description, price, bookingPer, adultsCount, childrenCount } =
       bookingDetails;
 
     const bookStartDate: string = new Date(bookingDetails.bookStartDate)
@@ -22,13 +22,14 @@ export default class Bookings extends MySQL {
     const query =
       
       "INSERT INTO booking (`guest_id`, `description`, `price`, `bookingPer`, `adultsCount`, `childrenCount`, `bookStartDate`, `bookEndDate`) " +
-      `VALUES ('${description}', '${price}', '${bookingPer}', '${adultsCount}', '${childrenCount}', '${bookStartDate}', '${bookEndDate}')`;
+      `VALUES ('${guest_id}','${description}', '${price}', '${bookingPer}', '${adultsCount}', '${childrenCount}', '${bookStartDate}', '${bookEndDate}')`;
     try {
-      const guest: Promise<OkPacket> = await this.promosifiedQuery(query);
-      return await guest;
+      const booking: Promise<OkPacket> = await this.promosifiedQuery(query);
+      return await booking;
     } catch (error: any) {
+      console.error("ERROR", error)
       throw new Error(
-        "Something went wrong while inserting guest in the database"
+        "Something went wrong while inserting booking in the database"
       );
     }
   }

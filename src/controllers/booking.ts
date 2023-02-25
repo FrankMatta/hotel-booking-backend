@@ -11,7 +11,7 @@ const createBooking = async (
   const bookings = new Bookings();
   const result: OkPacket | Error = await bookings.create(body);
   if (!(result instanceof Error)) {
-    res.status(200).send();
+    res.status(200).send({message: "Booking create successfully!"});
   } else {
     res.status(500).send("Internal server error");
   }
