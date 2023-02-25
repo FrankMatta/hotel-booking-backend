@@ -1,17 +1,16 @@
 import { Connection, createConnection, OkPacket } from "mysql";
 import { promisify } from "util";
-import { GuestDetails } from "../models/models";
 
 //dotenv config
 import * as dotenv from "dotenv";
 dotenv.config();
 
-export class MySQLConnectionParams {
-  host!: string;
-  port!: number;
-  user!: string;
-  password!: string;
-  database!: string;
+class MySQLConnectionParams {
+  host = process.env.host;
+  port = parseInt(process.env.port!);
+  user = process.env.user;
+  password = process.env.password;
+  database = process.env.database;
 }
 
 /**
@@ -19,13 +18,12 @@ export class MySQLConnectionParams {
  */
 export default class MySQL extends MySQLConnectionParams {
   private connection!: Connection;
-  private promosifiedQuery: any;
+  protected promosifiedQuery: any;
 
-  constructor(connectionParams: MySQLConnectionParams) {
+  constructor() {
     super();
-    const { database } = connectionParams;
-    this.database = database;
-    this.connectToMySQL(connectionParams);
+
+    this.connectToMySQL();
 
     this.promosifiedQuery = promisify(this.connection.query).bind(
       this.connection
@@ -38,8 +36,8 @@ export default class MySQL extends MySQLConnectionParams {
     }
   }
 
-  connectToMySQL(connectionParams: MySQLConnectionParams): void {
-    const { host, port, user, password, database } = connectionParams;
+  connectToMySQL(): void {
+    const { host, port, user, password, database } = this;
     this.connection = createConnection({
       host,
       port,
@@ -53,39 +51,5 @@ export default class MySQL extends MySQLConnectionParams {
       }
       console.log("Successfully connected to MySQL");
     });
-  }
-
-  async addGuest<T>(guestDetails: GuestDetails): Promise<OkPacket | Error> {
-    const { firstName, lastName, city, country, email, passportDetails } =
-      guestDetails;
-    const { foreName, surName, passportNumber } = passportDetails;
-    const dateOfBirth: string = new Date(guestDetails.dateOfBirth)
-      .toISOString()
-      .replace("T", " ")
-      .slice(0, -5);
-    const dateOfIssue: string = new Date(
-      guestDetails.passportDetails.dateOfIssue
-    )
-      .toISOString()
-      .replace("T", " ")
-      .slice(0, -5);
-    const dateOfExpiry: string = new Date(
-      guestDetails.passportDetails.dateOfExpiry
-    )
-      .toISOString()
-      .replace("T", " ")
-      .slice(0, -5);
-
-    const query =
-      "INSERT INTO guest_details (`firstName`, `lastName`, `email`, `dateOfBirth`, `city`, `country`, `passportForename`, `passportSurname`, `passportNumber`, `passportDateOfIssue`, `passportDateOfExpiry`) " +
-      `VALUES ('${firstName}', '${lastName}', '${email}', '${dateOfBirth}', '${city}', '${country}', '${foreName}', '${surName}', '${passportNumber}', '${dateOfIssue}', '${dateOfExpiry}')`;
-    try {
-      const guest: Promise<OkPacket> = await this.promosifiedQuery(query);
-      return await guest;
-    } catch (error: any) {
-      throw new Error(
-        "Something went wrong while inserting guest in the database"
-      );
-    }
   }
 }

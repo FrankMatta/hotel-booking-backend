@@ -1,17 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { MySQLConnectionParams } from "../database/mysql";
-import MySQL from "../database/mysql";
+import Guests from "../database/guests";
 import sendGuestEmail from "../services/send_emails";
 import { OkPacket } from "mysql";
-
-const params: MySQLConnectionParams = {
-  host: process.env.host!,
-  port: parseInt(process.env.port!),
-  user: process.env.user!,
-  password: process.env.password!,
-  database: process.env.database!,
-};
-const mysql = new MySQL(params);
 
 
 const saveGuestDetails = async (
@@ -20,9 +10,10 @@ const saveGuestDetails = async (
     next: NextFunction
 ) => {
   const { body } = req;
-  const result: OkPacket | Error = await mysql.addGuest(body)
+  const guests = new Guests();
+  const result: OkPacket | Error = await guests.create(body)
   if (!(result instanceof Error)) {
-    res.status(200).send();
+    res.status(200).send({message: 'Guest added successfully!'});
     sendGuestEmail(body);
   } else {
     res.status(500).send('Internal server error')
