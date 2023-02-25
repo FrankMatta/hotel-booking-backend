@@ -28,4 +28,3 @@ export interface BookingDetails {
   adultsCount: number;
   childrenCount: number;
 }
-
