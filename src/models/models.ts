@@ -19,7 +19,7 @@ enum BookingPer {
   BOOKING="booking"
 }
 export interface BookingDetails {
-  guest_id?: string;
+  guestId: number;
   description: string;
   price: number;
   bookStartDate: Date;

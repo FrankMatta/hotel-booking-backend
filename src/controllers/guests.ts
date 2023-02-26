@@ -11,9 +11,9 @@ const saveGuestDetails = async (
 ) => {
   const { body } = req;
   const guests = new Guests();
-  const result: OkPacket | Error = await guests.create(body)
+  const result: number | Error = await guests.create(body)
   if (!(result instanceof Error)) {
-    res.status(200).send({message: 'Guest created successfully!'});
+    res.status(200).send({ message: 'Guest created successfully!', guestId: result});
     sendGuestEmail(body);
   } else {
     res.status(500).send('Internal server error')

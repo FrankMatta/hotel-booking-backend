@@ -3,7 +3,7 @@ import { GuestDetails } from "../models/models";
 import MySQL from "./mysql";
 
 export default class Guests extends MySQL {
-  async create(guestDetails: GuestDetails): Promise<OkPacket | Error> {
+  async create(guestDetails: GuestDetails): Promise<number | Error> {
     const { firstName, lastName, city, country, email, passportDetails } =
       guestDetails;
     const { foreName, surName, passportNumber } = passportDetails;
@@ -29,7 +29,7 @@ export default class Guests extends MySQL {
       `VALUES ('${firstName}', '${lastName}', '${email}', '${dateOfBirth}', '${city}', '${country}', '${foreName}', '${surName}', '${passportNumber}', '${dateOfIssue}', '${dateOfExpiry}')`;
     try {
       const guest: Promise<OkPacket> = await this.promosifiedQuery(query);
-      return await guest;
+      return  (await guest).insertId;
     } catch (error: any) {
       throw new Error(
         "Something went wrong while inserting guest in the database"
