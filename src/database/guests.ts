@@ -28,7 +28,7 @@ export default class Guests extends MySQL {
       "INSERT INTO guests (`firstName`, `lastName`, `email`, `dateOfBirth`, `city`, `country`, `passportForename`, `passportSurname`, `passportNumber`, `passportDateOfIssue`, `passportDateOfExpiry`) " +
       `VALUES ('${firstName}', '${lastName}', '${email}', '${dateOfBirth}', '${city}', '${country}', '${foreName}', '${surName}', '${passportNumber}', '${dateOfIssue}', '${dateOfExpiry}')`;
     try {
-      const guest: Promise<OkPacket> = await this.promosifiedQuery(query);
+      const guest: Promise<OkPacket> = await (await MySQL.getInstance()).connection(query);
       return  (await guest).insertId;
     } catch (error: any) {
       throw new Error(

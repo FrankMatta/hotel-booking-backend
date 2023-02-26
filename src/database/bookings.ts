@@ -37,7 +37,7 @@ export default class Bookings extends MySQL {
       "INSERT INTO bookings (`guest_id`, `description`, `price`, `bookingPer`, `adultsCount`, `childrenCount`, `bookStartDate`, `bookEndDate`, `appliedDiscount`) " +
       `VALUES ('${guest_id}','${description}', '${price}', '${bookingPer}', '${adultsCount}', '${childrenCount}', '${start}', '${end}', '${appliedDiscount}')`;
     try {
-      const bookingId: Promise<OkPacket> = await this.promosifiedQuery(query);
+      const bookingId: Promise<OkPacket> = await (await MySQL.getInstance()).connection(query);
       return (await bookingId).insertId
     } catch (error: any) {
       console.error("ERROR", error);
@@ -66,7 +66,7 @@ export default class Bookings extends MySQL {
   async getBookingById(bookingId: string) {
     const query = `SELECT bookings.id as bookingId, bookings.description, bookings.price, bookings.price, bookings.bookingPer, bookings.adultsCount, bookings.childrenCount, bookings.bookStartDate, bookings.bookEndDate, bookings.appliedDiscount, bookings.createdAt, guests.firstName, guests.lastName, guests.email from bookings RIGHT JOIN guests on bookings.guest_id = guests.id where bookings.id=${bookingId}`;
     try {
-      const [data] = await this.promosifiedQuery(query);
+      const [data] = await (await MySQL.getInstance()).connection(query);
       return data;
     } catch (error: any) {
       console.error("ERROR", error);

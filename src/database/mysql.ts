@@ -1,4 +1,4 @@
-import { Connection, createConnection, OkPacket } from "mysql";
+import { createConnection } from "mysql";
 import { promisify } from "util";
 
 //dotenv config
@@ -16,18 +16,20 @@ class MySQLConnectionParams {
 /**
  * MySQL class responsible for all the operations inside MySQL database
  */
-export default class MySQL extends MySQLConnectionParams {
-  private connection!: Connection;
-  protected promosifiedQuery: any;
+export default class MySqlDatabase extends MySQLConnectionParams {
+  private static instance: MySqlDatabase | null = null;
+  public connection: any;
 
   constructor() {
     super();
+  }
 
-    this.connectToMySQL();
-
-    this.promosifiedQuery = promisify(this.connection.query).bind(
-      this.connection
-    );
+  public static async getInstance(): Promise<MySqlDatabase> {
+    if (!MySqlDatabase.instance) {
+      MySqlDatabase.instance = new MySqlDatabase();
+      await MySqlDatabase.instance.connect();
+    }
+    return MySqlDatabase.instance;
   }
 
   destructor() {
@@ -36,7 +38,7 @@ export default class MySQL extends MySQLConnectionParams {
     }
   }
 
-  connectToMySQL(): void {
+  connect(): void {
     const { host, port, user, password, database } = this;
     this.connection = createConnection({
       host,
@@ -45,11 +47,6 @@ export default class MySQL extends MySQLConnectionParams {
       password,
       database,
     });
-    this.connection.connect(function (error: Error) {
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log("Successfully connected to MySQL");
-    });
+    this.connection = promisify(this.connection.query).bind(this.connection);
   }
 }
